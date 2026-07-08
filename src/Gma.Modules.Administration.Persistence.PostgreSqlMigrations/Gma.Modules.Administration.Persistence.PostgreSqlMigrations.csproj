@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <NoWarn>$(NoWarn);IDE0065;IDE0161;IDE0300;CA1861</NoWarn>
   </PropertyGroup>
@@ -10,6 +10,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gma.Modules.Administration.Persistence\Gma.Modules.Administration.Persistence.csproj" />
-    <ProjectReference Include="$(GmaFrameworkRoot)Gma.Framework.Persistence.EntityFrameworkCore\Gma.Framework.Persistence.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="$(GmaFrameworkRoot)Persistence\Gma.Framework.Persistence.EntityFrameworkCore\Gma.Framework.Persistence.EntityFrameworkCore.csproj" />
   </ItemGroup>
 </Project>
