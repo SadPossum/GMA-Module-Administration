@@ -1,6 +1,5 @@
 namespace Gma.Modules.Administration.Persistence;
 
-using Gma.Modules.Administration.Application.Ports;
 using Gma.Modules.Administration.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +25,6 @@ public static class DependencyInjection
                 AdminMigrations.Schema,
                 AdminMigrations.HistoryTable));
 
-        builder.Services.TryAddScoped<IAdminRbacRepository, AdminRbacRepository>();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<IUnitOfWork, AdminUnitOfWork>());
         builder.Services.Replace(ServiceDescriptor.Scoped<IAdminAuditSink, AdminAuditSink>());
 

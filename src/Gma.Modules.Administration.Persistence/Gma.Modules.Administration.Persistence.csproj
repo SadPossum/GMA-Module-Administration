@@ -6,10 +6,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gma.Modules.Administration.Contracts\Gma.Modules.Administration.Contracts.csproj" />
-    <ProjectReference Include="..\Gma.Modules.Administration.Application\Gma.Modules.Administration.Application.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Administration\Gma.Framework.Administration\Gma.Framework.Administration.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Persistence\Gma.Framework.Persistence.EntityFrameworkCore\Gma.Framework.Persistence.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="$(GmaFrameworkRoot)Runtime\Gma.Framework.Runtime\Gma.Framework.Runtime.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Cqrs\Gma.Framework.Cqrs\Gma.Framework.Cqrs.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Naming\Gma.Framework.Naming\Gma.Framework.Naming.csproj" />
   </ItemGroup>
