@@ -4,24 +4,18 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(GmaModuleAdministrationRoot)Gma.Modules.Administration.Admin.Contracts\Gma.Modules.Administration.Admin.Contracts.csproj" />
-    <ProjectReference Include="$(GmaModuleAdministrationRoot)Gma.Modules.Administration.AdminApi\Gma.Modules.Administration.AdminApi.csproj" />
-    <ProjectReference Include="$(GmaModuleAdministrationRoot)Gma.Modules.Administration.AdminCli\Gma.Modules.Administration.AdminCli.csproj" />
     <ProjectReference Include="$(GmaModuleAdministrationRoot)Gma.Modules.Administration.Application\Gma.Modules.Administration.Application.csproj" />
     <ProjectReference Include="$(GmaModuleAdministrationRoot)Gma.Modules.Administration.Persistence\Gma.Modules.Administration.Persistence.csproj" />
+    <ProjectReference Include="$(GmaModuleAdministrationRoot)Gma.Modules.Administration.Persistence.PostgreSqlMigrations\Gma.Modules.Administration.Persistence.PostgreSqlMigrations.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Administration\Gma.Framework.Administration\Gma.Framework.Administration.csproj" />
-    <ProjectReference Include="$(GmaFrameworkRoot)Cqrs\Gma.Framework.Cqrs\Gma.Framework.Cqrs.csproj" />
-    <ProjectReference Include="$(GmaFrameworkRoot)Naming\Gma.Framework.Naming\Gma.Framework.Naming.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Results\Gma.Framework.Results\Gma.Framework.Results.csproj" />
     <ProjectReference Include="$(GmaFrameworkRoot)Runtime\Gma.Framework.Runtime\Gma.Framework.Runtime.csproj" />
   </ItemGroup>

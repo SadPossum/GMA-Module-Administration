@@ -4,6 +4,9 @@
   </Folder>
   <Folder Name="/eng/">
     <File Path="eng/bootstrap-source-roots.ps1" />
+    <File Path="eng/check-boundaries.ps1" />
+    <File Path="eng/check-migrations.ps1" />
+    <File Path="eng/verify.ps1" />
   </Folder>
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/validate.yml" />
@@ -21,6 +24,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/Admin/">
+    <Project Path="src/Gma.Modules.Administration.Admin.Contracts/Gma.Modules.Administration.Admin.Contracts.csproj" />
     <Project Path="src/Gma.Modules.Administration.AdminApi/Gma.Modules.Administration.AdminApi.csproj" />
     <Project Path="src/Gma.Modules.Administration.AdminCli/Gma.Modules.Administration.AdminCli.csproj" />
   </Folder>
@@ -36,6 +40,7 @@
     <Project Path="src/Gma.Modules.Administration.Persistence/Gma.Modules.Administration.Persistence.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Gma.Modules.Administration.IntegrationTests/Gma.Modules.Administration.IntegrationTests.csproj" />
     <Project Path="tests/Gma.Modules.Administration.Tests/Gma.Modules.Administration.Tests.csproj" />
   </Folder>
 </Solution>

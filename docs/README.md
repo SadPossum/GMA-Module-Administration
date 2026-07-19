@@ -2,7 +2,7 @@
 
 Development task: [Administration production hardening](administration-production-hardening-task.md).
 
-The Administration module is optional. It owns persisted admin audit and empty CLI/API shell modules that let hosts opt into audit storage without also opting into persisted RBAC.
+The Administration module is optional. It owns persisted admin audit, bounded audit discovery, and explicit retention operations without also owning persisted RBAC.
 
 It does not own roles, permission grants, subject assignments, or feature-specific administration behavior. Persisted RBAC lives in `Gma.Modules.AccessControl`. Feature modules expose their own `.AdminCli` and `.AdminApi` front doors and declare their own permission codes.
 
@@ -10,6 +10,7 @@ It does not own roles, permission grants, subject assignments, or feature-specif
 
 ```text
 Gma.Modules.Administration.Contracts
+Gma.Modules.Administration.Admin.Contracts
 Gma.Modules.Administration.Application
 Gma.Modules.Administration.Persistence
 Gma.Modules.Administration.AdminCli
@@ -18,37 +19,52 @@ Gma.Modules.Administration.AdminApi
 
 ## Public Contracts
 
-`Gma.Modules.Administration.Contracts` contains Administration module metadata only. Shared administration contracts live in `Gma.Framework.Administration`.
+`Gma.Modules.Administration.Contracts` contains Administration module metadata and audit permission codes. Shared administration execution and audit-write contracts live in `Gma.Framework.Administration`.
 
-The Administration admin CLI/API projects intentionally map no commands or endpoints in the current slice. They register audit persistence and keep a stable composition point for future audit read/export surfaces.
+`Gma.Modules.Administration.Admin.Contracts` contains typed audit permissions and stable operation names. Query models, cursors, and persistence ports remain inside Application because the supported external surfaces are the Administration API and CLI.
 
 ## CLI Commands
 
-This module does not declare CLI commands.
+The Administration CLI maps:
+
+```text
+administration audit list
+administration audit purge --before <utc> --yes
+```
+
+`list` supports exact tenant, recorded actor, operation, permission, result, error-code, UTC range, cursor, and limit filters. The tenant value is a data filter only; audit discovery still requires a global permission. JSON output includes `nextCursor`; table output prints it separately when another page exists.
+
+`purge` removes one bounded batch older than an explicit cutoff. It requires `--yes`; repeat it only while the response reports more eligible records.
 
 Hosts that want persisted role management compose `Gma.Modules.AccessControl.AdminCli`, which owns the compatibility `admin bootstrap` and `admin roles ...` commands.
 
 ## Admin API
 
-This module does not declare HTTP endpoints.
+The Administration API maps:
+
+```text
+GET  /api/admin/audit
+POST /api/admin/audit/purge
+```
+
+Reads are newest-first and use an opaque `(CreatedAtUtc, Id)` keyset cursor. They do not count the table. Purge requires an explicit UTC cutoff and `confirmed: true`, and never deletes more than one configured batch.
 
 Hosts that want persisted role management compose `Gma.Modules.AccessControl.AdminApi`, which owns the compatibility `/api/admin/roles` routes. Bootstrap remains CLI-only.
 
 ## Permissions
 
-This module does not declare permissions.
-
-AccessControl declares the compatibility admin permissions:
+Administration declares global audit permissions:
 
 | Permission | Purpose |
 | --- | --- |
-| `admin.bootstrap` | First owner bootstrap operation. |
-| `admin.roles.read` | List roles and assignments. |
-| `admin.roles.manage` | Create roles, grant permissions, and assign roles. |
+| `administration.audit.read` | Read administrative audit records. |
+| `administration.audit.purge` | Purge one confirmed, bounded batch using an explicit cutoff. |
+
+AccessControl separately declares compatibility bootstrap and role-management permissions.
 
 ## Application Layer
 
-Application code currently registers the admin audit sink and keeps administration options close to the module. RBAC use cases and persistence ports live in `Gma.Modules.AccessControl.Application`.
+Application code registers the generic admin runner, validates audit filters and cursors, and owns bounded query and retention use cases. RBAC use cases and persistence ports live in `Gma.Modules.AccessControl.Application`.
 
 Authorization itself uses the shared `IAdminAuthorizationService`. `Gma.Framework.Administration` denies by default. Hosts that compose AccessControl admin front doors also compose the `Gma.Framework.Administration.AccessControl` bridge, which adapts admin operations to the generic access-control decision pipeline.
 
@@ -70,7 +86,26 @@ Tables:
 
 - `audit_entries`
 
-Legacy Administration RBAC migrations are retained for compatibility, but the current Administration model maps audit only. New RBAC storage belongs to the `access` schema owned by `Gma.Modules.AccessControl`.
+Traversal indexes cover global, tenant, actor, operation, and permission reads with `CreatedAtUtc` plus `Id` as the deterministic cursor key. Result and error-code filters use the chronological path to avoid unnecessary append-time index amplification.
+
+Legacy Administration RBAC migrations and tables are retained for upgrade compatibility, but the current Administration model neither maps nor reads them. New RBAC storage belongs to the `access` schema owned by `Gma.Modules.AccessControl`. Do not drop historical RBAC tables until the composing product has explicitly verified its AccessControl migration and recovery plan.
+
+## Configuration
+
+```json
+{
+  "Administration": {
+    "Audit": {
+      "DefaultPageSize": 50,
+      "MaxPageSize": 200,
+      "DefaultPurgeBatchSize": 500,
+      "MaxPurgeBatchSize": 2000
+    }
+  }
+}
+```
+
+Hard limits cap reads at 500 records and purge calls at 5000 records even when configuration asks for more.
 
 ## Audit
 
@@ -87,6 +122,8 @@ Legacy Administration RBAC migrations are retained for compatibility, but the cu
 Audit data is intentionally small and secret-free. Do not add command payloads, passwords, tokens, hashes, or raw exception details to audit records.
 Actor ids and audit error codes are bounded operation metadata. Actor ids are case-preserving external identifiers, but they cannot contain whitespace or control characters. Error codes should be stable application or domain codes, not free-form messages.
 
+No automatic retention policy is enabled. Retention periods, legal holds, archival, and purge scheduling belong to the composing product or operator. Audit sink failures remain visible through the framework API header or CLI error output; the generic runner cannot transactionally roll back an operation owned by another module.
+
 ## Integration Events
 
 The Administration module does not publish integration events in this milestone.
@@ -95,7 +132,8 @@ The Administration module does not publish integration events in this milestone.
 
 Relevant coverage:
 
-- administration application/audit registration in `Gma.Modules.Administration.Tests`;
+- administration metadata, normalization, cursor, handlers, front doors, and audit registration in `Gma.Modules.Administration.Tests`;
+- append, filter isolation, cursor traversal, and retention against real PostgreSQL in `Gma.Modules.Administration.IntegrationTests`;
 - generic admin contract and deny-by-default behavior in `Gma.Framework.Tests`;
 - AccessControl bootstrap, role, assignment, and persisted decision behavior in `Gma.Modules.AccessControl.Tests`;
 - CLI AccessControl and Auth admin flows in `AdminCliIntegrationTests`;
@@ -106,8 +144,8 @@ Relevant coverage:
 
 Likely future additions:
 
-- audit export/read APIs;
-- audit retention policies;
+- external audit archive and SIEM adapters;
+- legal-hold and product retention policy workflows;
 - operator activity reports.
 
 Keep the module generic. It should know admin operation metadata and audit, not Auth internals, RBAC table internals, or product-specific user concepts.

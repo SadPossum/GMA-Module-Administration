@@ -62,9 +62,15 @@ namespace Gma.Modules.Administration.Persistence.PostgreSqlMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActorId", "CreatedAtUtc");
+                    b.HasIndex("CreatedAtUtc", "Id");
 
-                    b.HasIndex("TenantId", "CreatedAtUtc");
+                    b.HasIndex("ActorId", "CreatedAtUtc", "Id");
+
+                    b.HasIndex("Operation", "CreatedAtUtc", "Id");
+
+                    b.HasIndex("Permission", "CreatedAtUtc", "Id");
+
+                    b.HasIndex("TenantId", "CreatedAtUtc", "Id");
 
                     b.ToTable("audit_entries", "admin");
                 });
