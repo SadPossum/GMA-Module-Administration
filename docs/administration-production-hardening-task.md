@@ -1,6 +1,6 @@
 # Administration Production Hardening Task
 
-Status: in progress
+Status: complete
 Date: 2026-07-19
 
 ## Goal
@@ -131,4 +131,8 @@ No Framework change is planned. A module-owned cursor keeps the wire contract na
 
 ## Current Verification
 
-The module implementation is complete locally. Boundary checks, zero-warning build, SQL Server and PostgreSQL migration-drift checks, fast tests, package vulnerability audit, and real PostgreSQL integration tests pass. Canonical Skeleton composition, BunkFy alignment, publication commits, and CI evidence remain in progress and will be recorded only after the complete consumer chain is green.
+The production-hardening slice is complete. The module implementation is published at `74ab152`; module CI run `29685246307` passed validation and real PostgreSQL integration tests. The dependency-neutral typed audit-result JSON contract is published in GMA Framework at `c62d4ee`, with framework CI run `29684928717` green.
+
+Canonical GMA Skeleton composition is published at `746e058`; run `29685719598` passed on Ubuntu and Windows. BunkFy backend alignment is published at `c9ea7a5`; validation run `29686719623` and Docker run `29686719615` passed. The BunkFy product root pins that backend at `d973778`, with root validation run `29686988537` green.
+
+Local verification also passed boundary checks, zero-warning builds, SQL Server and PostgreSQL migration-drift checks, fast tests, package vulnerability audits, real PostgreSQL module integration tests, and composed Admin API/CLI tests against both SQL Server and PostgreSQL in Skeleton and BunkFy. The explicit deferred items above remain outside this completed slice.
