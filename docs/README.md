@@ -1,5 +1,7 @@
 # Administration Module
 
+Development task: [Administration production hardening](administration-production-hardening-task.md).
+
 The Administration module is optional. It owns persisted admin audit and empty CLI/API shell modules that let hosts opt into audit storage without also opting into persisted RBAC.
 
 It does not own roles, permission grants, subject assignments, or feature-specific administration behavior. Persisted RBAC lives in `Gma.Modules.AccessControl`. Feature modules expose their own `.AdminCli` and `.AdminApi` front doors and declare their own permission codes.
