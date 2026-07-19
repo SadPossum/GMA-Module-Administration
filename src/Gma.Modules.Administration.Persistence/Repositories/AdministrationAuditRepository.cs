@@ -1,5 +1,6 @@
 namespace Gma.Modules.Administration.Persistence.Repositories;
 
+using Gma.Framework.Administration;
 using Gma.Modules.Administration.Application.Models;
 using Gma.Modules.Administration.Application.Ports;
 using Gma.Modules.Administration.Persistence.Entities;
@@ -36,9 +37,10 @@ internal sealed class AdministrationAuditRepository(AdminDbContext dbContext)
             query = query.Where(entry => entry.Permission == filter.Permission);
         }
 
-        if (filter.ResultName is not null)
+        if (filter.Outcome.HasValue)
         {
-            query = query.Where(entry => entry.Result == filter.ResultName);
+            string resultName = AdminAuditResults.ToWireName(filter.Outcome.Value);
+            query = query.Where(entry => entry.Result == resultName);
         }
 
         if (filter.ErrorCode is not null)
@@ -65,11 +67,12 @@ internal sealed class AdministrationAuditRepository(AdminDbContext dbContext)
                 (entry.CreatedAtUtc == createdAtUtc && entry.Id.CompareTo(id) < 0));
         }
 
-        return await query
+        var entries = await query
             .OrderByDescending(entry => entry.CreatedAtUtc)
             .ThenByDescending(entry => entry.Id)
             .Take(take)
-            .Select(entry => new AdministrationAuditEntryDetails(
+            .Select(entry => new
+            {
                 entry.Id,
                 entry.ActorId,
                 entry.TenantId,
@@ -77,9 +80,22 @@ internal sealed class AdministrationAuditRepository(AdminDbContext dbContext)
                 entry.Permission,
                 entry.Result,
                 entry.ErrorCode,
-                entry.CreatedAtUtc))
+                entry.CreatedAtUtc
+            })
             .ToArrayAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        return entries
+            .Select(entry => new AdministrationAuditEntryDetails(
+                entry.Id,
+                entry.ActorId,
+                entry.TenantId,
+                entry.Operation,
+                entry.Permission,
+                AdminAuditResults.Parse(entry.Result),
+                entry.ErrorCode,
+                entry.CreatedAtUtc))
+            .ToArray();
     }
 
     public async Task<AdministrationAuditRetentionBatch> PurgeBeforeAsync(

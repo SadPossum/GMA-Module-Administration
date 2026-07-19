@@ -84,13 +84,21 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
                 async (provider, token) =>
                 {
                     IRequestDispatcher dispatcher = provider.GetRequiredService<IRequestDispatcher>();
+                    if (!TryParseAuditResult(
+                        parseResult.GetValue(resultOption),
+                        out AdminAuditResult? parsedResult))
+                    {
+                        return Result.Failure<AdministrationAuditPage>(
+                            AdministrationApplicationErrors.AuditResultInvalid);
+                    }
+
                     Result<AdministrationAuditPage> query = await dispatcher.QueryAsync(
                         new ListAdministrationAuditEntriesQuery(
                             tenantId,
                             parseResult.GetValue(actorOption),
                             parseResult.GetValue(operationOption),
                             parseResult.GetValue(permissionOption),
-                            parseResult.GetValue(resultOption),
+                            parsedResult,
                             parseResult.GetValue(errorCodeOption),
                             parseResult.GetValue(fromOption),
                             parseResult.GetValue(toOption),
@@ -189,7 +197,7 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
                 ("Actor", item => item.ActorId),
                 ("Tenant", item => item.TenantId ?? string.Empty),
                 ("Operation", item => item.Operation),
-                ("Result", item => item.Result),
+                ("Result", item => AdminAuditResults.ToWireName(item.Result)),
                 ("Error", item => item.ErrorCode ?? string.Empty),
                 ("Id", item => item.Id.ToString())
             ]);
@@ -215,5 +223,22 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
         AdminCliOutput.WriteMessage(
             $"Deleted {result.DeletedCount.ToString(CultureInfo.InvariantCulture)} audit record(s). " +
             $"More eligible: {result.HasMore.ToString(CultureInfo.InvariantCulture)}.");
+    }
+
+    private static bool TryParseAuditResult(string? value, out AdminAuditResult? result)
+    {
+        result = null;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        if (!AdminAuditResults.TryParse(value, out AdminAuditResult parsed))
+        {
+            return false;
+        }
+
+        result = parsed;
+        return true;
     }
 }

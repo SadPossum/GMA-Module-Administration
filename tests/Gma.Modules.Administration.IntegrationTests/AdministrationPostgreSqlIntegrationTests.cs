@@ -70,7 +70,7 @@ public sealed class AdministrationPostgreSqlIntegrationTests
             "actor-a",
             "auth.members.list",
             "auth.members.read",
-            "succeeded",
+            AdminAuditResult.Succeeded,
             null,
             Now.AddHours(-1),
             Now.AddMinutes(1));

@@ -9,6 +9,7 @@ using Gma.Modules.Administration.Application.Handlers;
 using Gma.Modules.Administration.Application.Models;
 using Gma.Modules.Administration.Application.Ports;
 using Gma.Modules.Administration.Application.Queries;
+using Gma.Modules.Administration.Application.Validation;
 using Microsoft.Extensions.Options;
 using Xunit;
 
@@ -149,6 +150,17 @@ public sealed class AdministrationAuditHandlerTests
         Assert.Equal(0, repository.PurgeCalls);
     }
 
+    [Fact]
+    public void Purge_validator_rejects_only_non_positive_supplied_batch_sizes()
+    {
+        PurgeAdministrationAuditEntriesCommandValidator validator = new();
+
+        Assert.NotEmpty(validator.Validate(
+            new PurgeAdministrationAuditEntriesCommand(Now.AddDays(-1), 0, Confirmed: true)));
+        Assert.Empty(validator.Validate(
+            new PurgeAdministrationAuditEntriesCommand(null, null, Confirmed: false)));
+    }
+
     private static AdministrationAuditEntryDetails Entry(int suffix, DateTimeOffset createdAtUtc) =>
         new(
             Guid.Parse($"00000000-0000-0000-0000-{suffix.ToString("D12", System.Globalization.CultureInfo.InvariantCulture)}"),
@@ -156,7 +168,7 @@ public sealed class AdministrationAuditHandlerTests
             "tenant-a",
             "auth.members.list",
             "auth.members.read",
-            AdminAuditResults.Succeeded,
+            AdminAuditResult.Succeeded,
             null,
             createdAtUtc);
 

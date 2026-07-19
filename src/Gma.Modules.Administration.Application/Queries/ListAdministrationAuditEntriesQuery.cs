@@ -1,5 +1,6 @@
 namespace Gma.Modules.Administration.Application.Queries;
 
+using Gma.Framework.Administration;
 using Gma.Framework.Cqrs;
 using Gma.Modules.Administration.Application.Models;
 
@@ -8,7 +9,7 @@ public sealed record ListAdministrationAuditEntriesQuery(
     string? ActorId,
     string? Operation,
     string? Permission,
-    string? Result,
+    AdminAuditResult? Result,
     string? ErrorCode,
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc,

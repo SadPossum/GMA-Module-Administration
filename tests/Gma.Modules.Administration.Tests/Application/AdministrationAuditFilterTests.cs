@@ -17,7 +17,7 @@ public sealed class AdministrationAuditFilterTests
             " Actor-A ",
             " Auth.Members.List ",
             " Auth.Members.Read ",
-            " SUCCEEDED ",
+            AdminAuditResult.Succeeded,
             " Auth.NotFound ",
             new DateTimeOffset(2026, 7, 19, 10, 0, 0, TimeSpan.FromHours(2)),
             new DateTimeOffset(2026, 7, 19, 12, 0, 0, TimeSpan.FromHours(2)));
@@ -27,23 +27,21 @@ public sealed class AdministrationAuditFilterTests
         Assert.Equal("Actor-A", created.Value.ActorId);
         Assert.Equal("auth.members.list", created.Value.Operation);
         Assert.Equal("auth.members.read", created.Value.Permission);
-        Assert.Equal(AdminAuditResults.Succeeded, created.Value.ResultName);
+        Assert.Equal(AdminAuditResult.Succeeded, created.Value.Outcome);
         Assert.Equal("Auth.NotFound", created.Value.ErrorCode);
         Assert.Equal(TimeSpan.Zero, created.Value.FromUtc?.Offset);
         Assert.Equal(TimeSpan.Zero, created.Value.ToUtc?.Offset);
     }
 
     [Theory]
-    [InlineData("bad actor", null, null, null, null, "Administration.AuditActorInvalid")]
-    [InlineData(null, "bad operation", null, null, null, "Administration.AuditOperationInvalid")]
-    [InlineData(null, null, "bad", null, null, "Administration.AuditPermissionInvalid")]
-    [InlineData(null, null, null, "unknown", null, "Administration.AuditResultInvalid")]
-    [InlineData(null, null, null, null, "bad", "Administration.AuditErrorCodeInvalid")]
+    [InlineData("bad actor", null, null, null, "Administration.AuditActorInvalid")]
+    [InlineData(null, "bad operation", null, null, "Administration.AuditOperationInvalid")]
+    [InlineData(null, null, "bad", null, "Administration.AuditPermissionInvalid")]
+    [InlineData(null, null, null, "bad", "Administration.AuditErrorCodeInvalid")]
     public void Create_rejects_invalid_exact_filters(
         string? actor,
         string? operation,
         string? permission,
-        string? result,
         string? errorCode,
         string expectedCode)
     {
@@ -52,13 +50,29 @@ public sealed class AdministrationAuditFilterTests
             actor,
             operation,
             permission,
-            result,
+            result: null,
             errorCode,
             fromUtc: null,
             toUtc: null);
 
         Assert.True(created.IsFailure);
         Assert.Equal(expectedCode, created.Error.Code);
+    }
+
+    [Fact]
+    public void Create_rejects_an_unknown_result_filter()
+    {
+        Result<AdministrationAuditFilter> created = AdministrationAuditFilter.Create(
+            null,
+            null,
+            null,
+            null,
+            (AdminAuditResult)999,
+            null,
+            null,
+            null);
+
+        Assert.Equal(AdministrationApplicationErrors.AuditResultInvalid, created.Error);
     }
 
     [Fact]

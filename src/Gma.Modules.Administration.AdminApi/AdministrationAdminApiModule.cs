@@ -5,6 +5,7 @@ using Gma.Framework.Administration.Api;
 using Gma.Framework.Api.Observability;
 using Gma.Framework.Api.Results;
 using Gma.Framework.Cqrs;
+using Gma.Framework.Results;
 using Gma.Modules.Administration.Admin.Contracts;
 using Gma.Modules.Administration.Application;
 using Gma.Modules.Administration.Application.Commands;
@@ -55,19 +56,28 @@ public sealed class AdministrationAdminApiModule : IAdminApiModule
                     AdministrationAdminOperationNames.AuditList,
                     AdministrationAdminPermissions.AuditRead),
                 requireTenant: false,
-                token => dispatcher.QueryAsync(
-                    new ListAdministrationAuditEntriesQuery(
-                        tenant,
-                        actor,
-                        operation,
-                        permission,
-                        result,
-                        errorCode,
-                        fromUtc,
-                        toUtc,
-                        cursor,
-                        limit),
-                    token),
+                token =>
+                {
+                    if (!TryParseAuditResult(result, out AdminAuditResult? parsedResult))
+                    {
+                        return Task.FromResult(Result.Failure<AdministrationAuditPage>(
+                            AdministrationApplicationErrors.AuditResultInvalid));
+                    }
+
+                    return dispatcher.QueryAsync(
+                        new ListAdministrationAuditEntriesQuery(
+                            tenant,
+                            actor,
+                            operation,
+                            permission,
+                            parsedResult,
+                            errorCode,
+                            fromUtc,
+                            toUtc,
+                            cursor,
+                            limit),
+                        token);
+                },
                 cancellationToken,
                 errorStatusCodes: ErrorStatusCodes).ConfigureAwait(false))
             .Produces<AdministrationAuditPage>(StatusCodes.Status200OK);
@@ -99,6 +109,23 @@ public sealed class AdministrationAdminApiModule : IAdminApiModule
         DateTimeOffset? BeforeUtc,
         int? BatchSize,
         bool Confirmed);
+
+    private static bool TryParseAuditResult(string? value, out AdminAuditResult? result)
+    {
+        result = null;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        if (!AdminAuditResults.TryParse(value, out AdminAuditResult parsed))
+        {
+            return false;
+        }
+
+        result = parsed;
+        return true;
+    }
 
     private static readonly ApiErrorStatusCodeMap ErrorStatusCodes = ApiErrorStatusCodeMap.Create(
         new(AdministrationApplicationErrors.AuditActorInvalid.Code, StatusCodes.Status400BadRequest),

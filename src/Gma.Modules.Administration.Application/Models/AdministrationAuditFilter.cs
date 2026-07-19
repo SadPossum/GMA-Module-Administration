@@ -10,7 +10,7 @@ internal sealed record AdministrationAuditFilter(
     string? ActorId,
     string? Operation,
     string? Permission,
-    string? ResultName,
+    AdminAuditResult? Outcome,
     string? ErrorCode,
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc)
@@ -23,7 +23,7 @@ internal sealed record AdministrationAuditFilter(
         string? actorId,
         string? operation,
         string? permission,
-        string? result,
+        AdminAuditResult? result,
         string? errorCode,
         DateTimeOffset? fromUtc,
         DateTimeOffset? toUtc)
@@ -72,18 +72,11 @@ internal sealed record AdministrationAuditFilter(
             normalizedPermission = parsedPermission.Code;
         }
 
-        string? normalizedResult = null;
-        if (!string.IsNullOrWhiteSpace(result))
+        if (result.HasValue &&
+            (result.Value is AdminAuditResult.Unknown || !Enum.IsDefined(result.Value)))
         {
-            normalizedResult = result.Trim().ToLowerInvariant();
-            if (normalizedResult is not (
-                AdminAuditResults.Succeeded or
-                AdminAuditResults.Denied or
-                AdminAuditResults.Failed))
-            {
-                return Result.Failure<AdministrationAuditFilter>(
-                    AdministrationApplicationErrors.AuditResultInvalid);
-            }
+            return Result.Failure<AdministrationAuditFilter>(
+                AdministrationApplicationErrors.AuditResultInvalid);
         }
 
         string? normalizedErrorCode = null;
@@ -109,7 +102,7 @@ internal sealed record AdministrationAuditFilter(
             normalizedActorId,
             normalizedOperation,
             normalizedPermission,
-            normalizedResult,
+            result,
             normalizedErrorCode,
             normalizedFromUtc,
             normalizedToUtc));
