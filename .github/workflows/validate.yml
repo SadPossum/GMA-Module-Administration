@@ -68,6 +68,7 @@ jobs:
         working-directory: gma-module-administration
         run: dotnet list Gma.Modules.Administration.slnx package --vulnerable --include-transitive
 
+  # Keep the job id stable for existing required-check configuration. The suite now covers both providers.
   postgresql:
     runs-on: ubuntu-latest
     steps:
@@ -98,7 +99,7 @@ jobs:
         working-directory: gma-module-administration
         run: ./eng/bootstrap-source-roots.ps1 -Force
 
-      - name: Run PostgreSQL integration tests
+      - name: Run relational integration tests
         working-directory: gma-module-administration
         env:
           GMA_REQUIRE_DOCKER_TESTS: "true"

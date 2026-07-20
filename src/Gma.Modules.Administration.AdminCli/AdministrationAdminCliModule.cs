@@ -51,7 +51,7 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
         Option<string?> actorOption = new("--record-actor") { Description = "Exact recorded actor id filter." };
         Option<string?> operationOption = new("--operation") { Description = "Exact operation name filter." };
         Option<string?> permissionOption = new("--permission") { Description = "Exact permission code filter." };
-        Option<string?> resultOption = new("--result") { Description = "Result filter: succeeded, denied, or failed." };
+        Option<string?> resultOption = new("--result") { Description = "Result filter: succeeded, denied, failed, or canceled." };
         Option<string?> errorCodeOption = new("--error-code") { Description = "Exact error code filter." };
         Option<DateTimeOffset?> fromOption = new("--from") { Description = "Inclusive UTC lower bound." };
         Option<DateTimeOffset?> toOption = new("--to") { Description = "Exclusive UTC upper bound." };

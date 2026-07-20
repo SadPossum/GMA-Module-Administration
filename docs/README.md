@@ -1,6 +1,8 @@
 # Administration Module
 
-Development task: [Administration production hardening](administration-production-hardening-task.md).
+Current development task: [Administration domain completion](administration-domain-completion-task.md).
+
+Completed foundation: [Administration production hardening](administration-production-hardening-task.md).
 
 The Administration module is optional. It owns persisted admin audit, bounded audit discovery, and explicit retention operations without also owning persisted RBAC.
 
@@ -32,7 +34,7 @@ administration audit list
 administration audit purge --before <utc> --yes
 ```
 
-`list` supports exact tenant, recorded actor, operation, permission, result, error-code, UTC range, cursor, and limit filters. The tenant value is a data filter only; audit discovery still requires a global permission. JSON output includes `nextCursor`; table output prints it separately when another page exists.
+`list` supports exact tenant, recorded actor, operation, permission, result, error-code, UTC range, cursor, and limit filters. Result values are `succeeded`, `denied`, `failed`, and `canceled`. The tenant value is a data filter only; audit discovery still requires a global permission. JSON output includes `nextCursor`; table output prints it separately when another page exists.
 
 `purge` removes one bounded batch older than an explicit cutoff. It requires `--yes`; repeat it only while the response reports more eligible records.
 
@@ -88,7 +90,7 @@ Tables:
 
 Traversal indexes cover global, tenant, actor, operation, and permission reads with `CreatedAtUtc` plus `Id` as the deterministic cursor key. Result and error-code filters use the chronological path to avoid unnecessary append-time index amplification.
 
-Legacy Administration RBAC migrations and tables are retained for upgrade compatibility, but the current Administration model neither maps nor reads them. New RBAC storage belongs to the `access` schema owned by `Gma.Modules.AccessControl`. Do not drop historical RBAC tables until the composing product has explicitly verified its AccessControl migration and recovery plan.
+Legacy Administration RBAC migrations and tables are retained for upgrade compatibility, but the current Administration model neither maps nor reads them. New RBAC storage belongs to the `access` schema owned by `Gma.Modules.AccessControl`. Follow the [v0.1 RBAC migration guide](v0.1-access-control-migration.md), and do not drop historical tables until the composing product has explicitly verified its AccessControl migration and recovery plan.
 
 ## Configuration
 
@@ -122,7 +124,7 @@ Hard limits cap reads at 500 records and purge calls at 5000 records even when c
 Audit data is intentionally small and secret-free. Do not add command payloads, passwords, tokens, hashes, or raw exception details to audit records.
 Actor ids and audit error codes are bounded operation metadata. Actor ids are case-preserving external identifiers, but they cannot contain whitespace or control characters. Error codes should be stable application or domain codes, not free-form messages.
 
-No automatic retention policy is enabled. Retention periods, legal holds, archival, and purge scheduling belong to the composing product or operator. Audit sink failures remain visible through the framework API header or CLI error output; the generic runner cannot transactionally roll back an operation owned by another module.
+No automatic retention policy is enabled. Retention periods, legal holds, archival, and purge scheduling belong to the composing product or operator. A missing durable sink reports audit failure by default; `NullAdminAuditSink` is an explicit deployment opt-out. Terminal writes use the Framework's bounded, request-independent audit token. Audit sink failures remain visible through the API header or CLI error output, and CLI exit code `4` means the mutation completed without a confirmed audit write. The generic runner cannot transactionally roll back an operation owned by another module.
 
 ## Integration Events
 
@@ -133,7 +135,7 @@ The Administration module does not publish integration events in this milestone.
 Relevant coverage:
 
 - administration metadata, normalization, cursor, handlers, front doors, and audit registration in `Gma.Modules.Administration.Tests`;
-- append, filter isolation, cursor traversal, and retention against real PostgreSQL in `Gma.Modules.Administration.IntegrationTests`;
+- append, UTC normalization, filter isolation, cursor traversal, retention, and legacy-table preservation against real PostgreSQL and SQL Server in `Gma.Modules.Administration.IntegrationTests`;
 - generic admin contract and deny-by-default behavior in `Gma.Framework.Tests`;
 - AccessControl bootstrap, role, assignment, and persisted decision behavior in `Gma.Modules.AccessControl.Tests`;
 - CLI AccessControl and Auth admin flows in `AdminCliIntegrationTests`;
