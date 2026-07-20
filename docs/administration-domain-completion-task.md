@@ -1,6 +1,6 @@
 # Administration Domain Completion Task
 
-Status: in progress
+Status: complete
 Date: 2026-07-20
 
 ## Goal
@@ -131,3 +131,12 @@ Products own:
 - product audit dashboards, arbitrary text search, and cross-module actor or target enrichment;
 - automatic migration of legacy RBAC data without a separately designed, explicit Extensions contract;
 - distributed transaction guarantees between a module mutation and the separate audit store.
+
+## Completion Evidence
+
+- Framework `aa08aeabc8b597747a9761b3e36bb105e06531f2`: exact-commit validation passed in run `29760542302`; the local Framework suite passed 1,005 tests.
+- Administration `4d3fceaceab432c7c0bd216ebad6dffe99cd174a`: exact-commit validation passed in run `29761458108`; local validation passed 29 fast tests and 10 required relational tests across PostgreSQL and SQL Server with no skips.
+- Skeleton `6d8d1bf2a77ad6c17c530fd4f685e0b7dd0eaecb`: Windows and Ubuntu validation passed in run `29763650070`, and exact-commit Docker validation passed in run `29764151001`.
+- BunkFy backend `dcfffb92628aee0d5de882c9d94fd6f55c4bd6b8`: Windows and Ubuntu validation passed in run `29765676240`, and required Docker validation passed in run `29765677045` with 27 tests and no skips.
+- BunkFy root `129540830e00f246049783a55545b6bac4542b15`: clean recursive workspace validation, including backend and committed frontend gates, passed in run `29766437697`.
+- Public product hosts still do not compose or expose the Administration audit front door; Administration remains available only through the dedicated admin API and CLI composition roots.
