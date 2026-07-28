@@ -18,6 +18,8 @@ public sealed class AdminAuditEntry
         this.Result = record.ResultName;
         this.ErrorCode = record.ErrorCode;
         this.CreatedAtUtc = record.CreatedAtUtc;
+        this.ResourceScope = record.ResourceScope;
+        this.ResourceScopeHash = AdminResourceScopeIndex.Create(record.ResourceScope);
     }
 
     public AdminAuditEntry(
@@ -28,7 +30,8 @@ public sealed class AdminAuditEntry
         string permission,
         string result,
         string? errorCode,
-        DateTimeOffset createdAtUtc)
+        DateTimeOffset createdAtUtc,
+        string? resourceScope = null)
         : this(new AdminAuditRecord(
             id,
             actorId,
@@ -37,7 +40,10 @@ public sealed class AdminAuditEntry
             permission,
             result,
             errorCode,
-            createdAtUtc))
+            createdAtUtc,
+            string.IsNullOrWhiteSpace(resourceScope)
+                ? null
+                : AdminResourceScope.Parse(resourceScope)))
     {
     }
 
@@ -49,4 +55,6 @@ public sealed class AdminAuditEntry
     public string Result { get; private set; } = string.Empty;
     public string? ErrorCode { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
+    public string? ResourceScope { get; private set; }
+    public string? ResourceScopeHash { get; private set; }
 }

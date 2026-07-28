@@ -10,4 +10,5 @@ public sealed record AdministrationAuditEntryDetails(
     string Permission,
     AdminAuditResult Result,
     string? ErrorCode,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    string? ResourceScope = null);

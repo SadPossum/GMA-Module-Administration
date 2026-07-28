@@ -24,7 +24,8 @@ internal sealed class ListAdministrationAuditEntriesQueryHandler(
             query.Result,
             query.ErrorCode,
             query.FromUtc,
-            query.ToUtc);
+            query.ToUtc,
+            query.ResourceScope);
         if (filter.IsFailure)
         {
             return Result.Failure<AdministrationAuditPage>(filter.Error);

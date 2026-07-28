@@ -60,7 +60,9 @@ public sealed class AdministrationFrontDoorTests
             "--actor",
             "operator-a",
             "--record-actor",
-            "recorded-a"
+            "recorded-a",
+            "--resource-scope",
+            "property:property-a"
         ]);
         ParseResult purge = root.Parse([
             "administration",

@@ -21,10 +21,12 @@ public sealed class AdministrationAuditJsonTests
             "auth.members.read",
             AdminAuditResult.Succeeded,
             null,
-            new DateTimeOffset(2026, 7, 19, 12, 0, 0, TimeSpan.Zero));
+            new DateTimeOffset(2026, 7, 19, 12, 0, 0, TimeSpan.Zero),
+            "property:property-a");
 
         string json = JsonSerializer.Serialize(entry, JsonOptions);
 
         Assert.Contains("\"result\":\"succeeded\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"resourceScope\":\"property:property-a\"", json, StringComparison.Ordinal);
     }
 }

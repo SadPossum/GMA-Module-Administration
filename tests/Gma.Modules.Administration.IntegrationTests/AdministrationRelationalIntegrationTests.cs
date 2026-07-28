@@ -50,7 +50,9 @@ public abstract class AdministrationRelationalIntegrationTests
                 " Auth.Members.Read ",
                 AdminAuditResult.Canceled,
                 AdminErrors.OperationCanceled.Code,
-                recordedAt),
+                recordedAt,
+                AdminResourceScope.Create(
+                    AdminResourceScopeSegment.Create("property", "property-a"))),
             CancellationToken.None);
 
         AdminAuditEntry entry = Assert.Single(await dbContext.AuditEntries.AsNoTracking().ToArrayAsync());
@@ -61,6 +63,8 @@ public abstract class AdministrationRelationalIntegrationTests
         Assert.Equal(AdminAuditResults.Canceled, entry.Result);
         Assert.Equal(AdminErrors.OperationCanceled.Code, entry.ErrorCode);
         Assert.Equal(recordedAt.ToUniversalTime(), entry.CreatedAtUtc);
+        Assert.Equal("property:property-a", entry.ResourceScope);
+        Assert.Equal(64, entry.ResourceScopeHash?.Length);
     }
 
     [DockerFact]
@@ -69,9 +73,9 @@ public abstract class AdministrationRelationalIntegrationTests
         await using AdministrationTestDatabase database = await this.CreateDatabaseAsync("administration_filter_tests");
         await using AdminDbContext dbContext = await database.CreateMigratedDbContextAsync();
         dbContext.AuditEntries.AddRange(
-            Entry(1, "actor-a", "tenant-a", "auth.members.list", "auth.members.read", "succeeded", null, Now),
-            Entry(2, "actor-b", "tenant-a", "auth.members.list", "auth.members.read", "denied", "Auth.Unauthorized", Now.AddMinutes(-1)),
-            Entry(3, "actor-a", "tenant-b", "tasks.runs.list", "tasks.runs.read", "succeeded", null, Now.AddMinutes(-2)));
+            Entry(1, "actor-a", "tenant-a", "auth.members.list", "auth.members.read", "succeeded", null, Now, "property:property-a"),
+            Entry(2, "actor-b", "tenant-a", "auth.members.list", "auth.members.read", "denied", "Auth.Unauthorized", Now.AddMinutes(-1), "property:property-b"),
+            Entry(3, "actor-a", "tenant-b", "tasks.runs.list", "tasks.runs.read", "succeeded", null, Now.AddMinutes(-2), "property:property-a"));
         await dbContext.SaveChangesAsync();
         AdministrationAuditRepository repository = new(dbContext);
         Result<AdministrationAuditFilter> filter = AdministrationAuditFilter.Create(
@@ -82,7 +86,8 @@ public abstract class AdministrationRelationalIntegrationTests
             AdminAuditResult.Succeeded,
             null,
             Now.AddHours(-1),
-            Now.AddMinutes(1));
+            Now.AddMinutes(1),
+            "property:property-a");
 
         IReadOnlyList<AdministrationAuditEntryDetails> entries = await repository.ListAsync(
             filter.Value,
@@ -294,7 +299,8 @@ public abstract class AdministrationRelationalIntegrationTests
         string permission = "auth.members.read",
         string result = "succeeded",
         string? errorCode = null,
-        DateTimeOffset? createdAtUtc = null) =>
+        DateTimeOffset? createdAtUtc = null,
+        string? resourceScope = null) =>
         new(
             Id(suffix),
             actorId,
@@ -303,7 +309,8 @@ public abstract class AdministrationRelationalIntegrationTests
             permission,
             result,
             errorCode,
-            createdAtUtc ?? Now);
+            createdAtUtc ?? Now,
+            resourceScope);
 
     private static Guid Id(int suffix) =>
         Guid.Parse($"00000000-0000-0000-0000-{suffix.ToString("D12", CultureInfo.InvariantCulture)}");

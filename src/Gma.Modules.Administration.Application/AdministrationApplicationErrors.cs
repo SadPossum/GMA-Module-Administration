@@ -10,6 +10,9 @@ public static class AdministrationApplicationErrors
     public static readonly Error AuditTenantInvalid = new(
         "Administration.AuditTenantInvalid",
         "The audit tenant filter is invalid.");
+    public static readonly Error AuditResourceScopeInvalid = new(
+        "Administration.AuditResourceScopeInvalid",
+        "The audit resource-scope filter is invalid.");
     public static readonly Error AuditOperationInvalid = new(
         "Administration.AuditOperationInvalid",
         "The audit operation filter is invalid.");

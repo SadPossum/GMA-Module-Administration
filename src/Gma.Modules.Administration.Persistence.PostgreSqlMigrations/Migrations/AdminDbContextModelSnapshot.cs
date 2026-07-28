@@ -51,6 +51,14 @@ namespace Gma.Modules.Administration.Persistence.PostgreSqlMigrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("ResourceScope")
+                        .HasMaxLength(888)
+                        .HasColumnType("character varying(888)");
+
+                    b.Property<string>("ResourceScopeHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<string>("Result")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -71,6 +79,8 @@ namespace Gma.Modules.Administration.Persistence.PostgreSqlMigrations.Migrations
                     b.HasIndex("Permission", "CreatedAtUtc", "Id");
 
                     b.HasIndex("TenantId", "CreatedAtUtc", "Id");
+
+                    b.HasIndex("TenantId", "ResourceScopeHash", "CreatedAtUtc", "Id");
 
                     b.ToTable("audit_entries", "admin");
                 });

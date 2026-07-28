@@ -27,6 +27,14 @@ internal sealed class AdministrationAuditRepository(AdminDbContext dbContext)
             query = query.Where(entry => entry.ActorId == filter.ActorId);
         }
 
+        if (filter.ResourceScope is not null)
+        {
+            string resourceScopeHash = AdminResourceScopeIndex.Create(filter.ResourceScope)!;
+            query = query.Where(entry =>
+                entry.ResourceScopeHash == resourceScopeHash &&
+                entry.ResourceScope == filter.ResourceScope);
+        }
+
         if (filter.Operation is not null)
         {
             query = query.Where(entry => entry.Operation == filter.Operation);
@@ -80,7 +88,8 @@ internal sealed class AdministrationAuditRepository(AdminDbContext dbContext)
                 entry.Permission,
                 entry.Result,
                 entry.ErrorCode,
-                entry.CreatedAtUtc
+                entry.CreatedAtUtc,
+                entry.ResourceScope
             })
             .ToArrayAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -94,7 +103,8 @@ internal sealed class AdministrationAuditRepository(AdminDbContext dbContext)
                 entry.Permission,
                 AdminAuditResults.Parse(entry.Result),
                 entry.ErrorCode,
-                entry.CreatedAtUtc))
+                entry.CreatedAtUtc,
+                entry.ResourceScope))
             .ToArray();
     }
 

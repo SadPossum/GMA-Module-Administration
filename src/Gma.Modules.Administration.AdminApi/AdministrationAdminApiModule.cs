@@ -38,6 +38,7 @@ public sealed class AdministrationAdminApiModule : IAdminApiModule
         audit.MapGet("/", async (
             string? tenant,
             string? actor,
+            string? resourceScope,
             string? operation,
             string? permission,
             string? result,
@@ -75,7 +76,8 @@ public sealed class AdministrationAdminApiModule : IAdminApiModule
                             fromUtc,
                             toUtc,
                             cursor,
-                            limit),
+                            limit,
+                            resourceScope),
                         token);
                 },
                 cancellationToken,
@@ -130,6 +132,7 @@ public sealed class AdministrationAdminApiModule : IAdminApiModule
     private static readonly ApiErrorStatusCodeMap ErrorStatusCodes = ApiErrorStatusCodeMap.Create(
         new(AdministrationApplicationErrors.AuditActorInvalid.Code, StatusCodes.Status400BadRequest),
         new(AdministrationApplicationErrors.AuditTenantInvalid.Code, StatusCodes.Status400BadRequest),
+        new(AdministrationApplicationErrors.AuditResourceScopeInvalid.Code, StatusCodes.Status400BadRequest),
         new(AdministrationApplicationErrors.AuditOperationInvalid.Code, StatusCodes.Status400BadRequest),
         new(AdministrationApplicationErrors.AuditPermissionInvalid.Code, StatusCodes.Status400BadRequest),
         new(AdministrationApplicationErrors.AuditResultInvalid.Code, StatusCodes.Status400BadRequest),

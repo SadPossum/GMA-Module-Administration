@@ -13,7 +13,8 @@ internal sealed record AdministrationAuditFilter(
     AdminAuditResult? Outcome,
     string? ErrorCode,
     DateTimeOffset? FromUtc,
-    DateTimeOffset? ToUtc)
+    DateTimeOffset? ToUtc,
+    string? ResourceScope)
 {
     private static readonly AdminPermission FilterValidationPermission =
         AdminPermission.Create(AdministrationPermissionCodes.AuditRead);
@@ -26,7 +27,8 @@ internal sealed record AdministrationAuditFilter(
         AdminAuditResult? result,
         string? errorCode,
         DateTimeOffset? fromUtc,
-        DateTimeOffset? toUtc)
+        DateTimeOffset? toUtc,
+        string? resourceScope = null)
     {
         string? normalizedTenantId = null;
         if (!string.IsNullOrWhiteSpace(tenantId) &&
@@ -46,6 +48,20 @@ internal sealed record AdministrationAuditFilter(
             }
 
             normalizedActorId = actor.Id;
+        }
+
+        string? normalizedResourceScope = null;
+        if (!string.IsNullOrWhiteSpace(resourceScope))
+        {
+            if (!AdminResourceScope.TryParse(
+                resourceScope,
+                out AdminResourceScope? parsedResourceScope))
+            {
+                return Result.Failure<AdministrationAuditFilter>(
+                    AdministrationApplicationErrors.AuditResourceScopeInvalid);
+            }
+
+            normalizedResourceScope = parsedResourceScope.Value;
         }
 
         string? normalizedOperation = null;
@@ -105,6 +121,7 @@ internal sealed record AdministrationAuditFilter(
             result,
             normalizedErrorCode,
             normalizedFromUtc,
-            normalizedToUtc));
+            normalizedToUtc,
+            normalizedResourceScope));
     }
 }

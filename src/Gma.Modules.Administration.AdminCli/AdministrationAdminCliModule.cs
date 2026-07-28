@@ -49,6 +49,7 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
         AdminCliGlobalOptions globalOptions)
     {
         Option<string?> actorOption = new("--record-actor") { Description = "Exact recorded actor id filter." };
+        Option<string?> resourceScopeOption = new("--resource-scope") { Description = "Exact recorded resource scope filter." };
         Option<string?> operationOption = new("--operation") { Description = "Exact operation name filter." };
         Option<string?> permissionOption = new("--permission") { Description = "Exact permission code filter." };
         Option<string?> resultOption = new("--result") { Description = "Result filter: succeeded, denied, failed, or canceled." };
@@ -60,6 +61,7 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
         Command command = new("list", "List administrative audit records newest first.")
         {
             actorOption,
+            resourceScopeOption,
             operationOption,
             permissionOption,
             resultOption,
@@ -103,7 +105,8 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
                             parseResult.GetValue(fromOption),
                             parseResult.GetValue(toOption),
                             parseResult.GetValue(cursorOption),
-                            parseResult.GetValue(limitOption)),
+                            parseResult.GetValue(limitOption),
+                            parseResult.GetValue(resourceScopeOption)),
                         token).ConfigureAwait(false);
                     if (query.IsSuccess)
                     {
@@ -196,6 +199,7 @@ public sealed class AdministrationAdminCliModule : IAdminCliModule
                 ("CreatedAtUtc", item => item.CreatedAtUtc.ToString("O", CultureInfo.InvariantCulture)),
                 ("Actor", item => item.ActorId),
                 ("Tenant", item => item.TenantId ?? string.Empty),
+                ("ResourceScope", item => item.ResourceScope ?? string.Empty),
                 ("Operation", item => item.Operation),
                 ("Result", item => AdminAuditResults.ToWireName(item.Result)),
                 ("Error", item => item.ErrorCode ?? string.Empty),

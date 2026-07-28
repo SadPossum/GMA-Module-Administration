@@ -19,10 +19,13 @@ internal sealed class AdminAuditEntryConfiguration : IEntityTypeConfiguration<Ad
         builder.Property(entry => entry.Permission).HasMaxLength(AdminPermission.MaxLength).IsRequired();
         builder.Property(entry => entry.Result).HasMaxLength(AdminAuditResults.MaxLength).IsRequired();
         builder.Property(entry => entry.ErrorCode).HasMaxLength(AdminAuditRecord.ErrorCodeMaxLength);
+        builder.Property(entry => entry.ResourceScope).HasMaxLength(AdminResourceScope.MaxLength);
+        builder.Property(entry => entry.ResourceScopeHash).HasMaxLength(AdminResourceScopeIndex.HashLength);
 
         builder.HasIndex(entry => new { entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.ActorId, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.TenantId, entry.CreatedAtUtc, entry.Id });
+        builder.HasIndex(entry => new { entry.TenantId, entry.ResourceScopeHash, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.Operation, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.Permission, entry.CreatedAtUtc, entry.Id });
     }

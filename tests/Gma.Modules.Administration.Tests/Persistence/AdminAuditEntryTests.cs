@@ -21,7 +21,8 @@ public sealed class AdminAuditEntryTests
             " Auth.Members.Read ",
             " Succeeded ",
             " Auth.Error ",
-            CreatedAtUtc);
+            CreatedAtUtc,
+            " Property:property-a ");
 
         Assert.Equal("Actor-1", entry.ActorId);
         Assert.Equal("tenant-a", entry.TenantId);
@@ -30,6 +31,9 @@ public sealed class AdminAuditEntryTests
         Assert.Equal("succeeded", entry.Result);
         Assert.Equal("Auth.Error", entry.ErrorCode);
         Assert.Equal(CreatedAtUtc, entry.CreatedAtUtc);
+        Assert.Equal("property:property-a", entry.ResourceScope);
+        Assert.Equal(64, entry.ResourceScopeHash?.Length);
+        Assert.DoesNotContain("property-a", entry.ResourceScopeHash, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,7 +47,9 @@ public sealed class AdminAuditEntryTests
             " Auth.Members.Read ",
             " Succeeded ",
             " Auth.Error ",
-            CreatedAtUtc);
+            CreatedAtUtc,
+            AdminResourceScope.Create(
+                AdminResourceScopeSegment.Create("property", "property-a")));
 
         AdminAuditEntry entry = new(record);
 
@@ -55,6 +61,8 @@ public sealed class AdminAuditEntryTests
         Assert.Equal(record.ResultName, entry.Result);
         Assert.Equal(record.ErrorCode, entry.ErrorCode);
         Assert.Equal(record.CreatedAtUtc, entry.CreatedAtUtc);
+        Assert.Equal(record.ResourceScope, entry.ResourceScope);
+        Assert.Equal(64, entry.ResourceScopeHash?.Length);
     }
 
     [Fact]
@@ -79,6 +87,21 @@ public sealed class AdminAuditEntryTests
     public void Constructor_rejects_invalid_tenant_id()
     {
         Assert.Throws<ArgumentException>(() => Create(tenantId: new string('x', TenantIds.MaxLength + 1)));
+    }
+
+    [Fact]
+    public void Constructor_rejects_invalid_resource_scope()
+    {
+        Assert.Throws<ArgumentException>(() => new AdminAuditEntry(
+            Guid.NewGuid(),
+            "actor",
+            "tenant-a",
+            "auth.members.list",
+            "auth.members.read",
+            "succeeded",
+            null,
+            CreatedAtUtc,
+            "property"));
     }
 
     private static AdminAuditEntry Create(

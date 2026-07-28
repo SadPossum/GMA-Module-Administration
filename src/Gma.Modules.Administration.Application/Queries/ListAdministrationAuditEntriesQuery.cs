@@ -14,4 +14,5 @@ public sealed record ListAdministrationAuditEntriesQuery(
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc,
     string? Cursor,
-    int? Limit) : IQuery<AdministrationAuditPage>;
+    int? Limit,
+    string? ResourceScope = null) : IQuery<AdministrationAuditPage>;

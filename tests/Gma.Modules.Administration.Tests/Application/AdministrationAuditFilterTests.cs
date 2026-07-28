@@ -20,7 +20,8 @@ public sealed class AdministrationAuditFilterTests
             AdminAuditResult.Succeeded,
             " Auth.NotFound ",
             new DateTimeOffset(2026, 7, 19, 10, 0, 0, TimeSpan.FromHours(2)),
-            new DateTimeOffset(2026, 7, 19, 12, 0, 0, TimeSpan.FromHours(2)));
+            new DateTimeOffset(2026, 7, 19, 12, 0, 0, TimeSpan.FromHours(2)),
+            " Property:property-a ");
 
         Assert.True(created.IsSuccess, created.Error.Message);
         Assert.Equal("tenant-a", created.Value.TenantId);
@@ -29,6 +30,7 @@ public sealed class AdministrationAuditFilterTests
         Assert.Equal("auth.members.read", created.Value.Permission);
         Assert.Equal(AdminAuditResult.Succeeded, created.Value.Outcome);
         Assert.Equal("Auth.NotFound", created.Value.ErrorCode);
+        Assert.Equal("property:property-a", created.Value.ResourceScope);
         Assert.Equal(TimeSpan.Zero, created.Value.FromUtc?.Offset);
         Assert.Equal(TimeSpan.Zero, created.Value.ToUtc?.Offset);
     }
@@ -85,5 +87,22 @@ public sealed class AdministrationAuditFilterTests
 
         Assert.True(created.IsFailure);
         Assert.Equal(AdministrationApplicationErrors.AuditTimeRangeInvalid, created.Error);
+    }
+
+    [Fact]
+    public void Create_rejects_an_invalid_resource_scope()
+    {
+        Result<AdministrationAuditFilter> created = AdministrationAuditFilter.Create(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "property");
+
+        Assert.Equal(AdministrationApplicationErrors.AuditResourceScopeInvalid, created.Error);
     }
 }
