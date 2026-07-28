@@ -38,12 +38,18 @@
     <File Path="eng/check-repository-security.ps1" />
     <File Path="eng/verify.ps1" />
   </Folder>
-  <Folder Name="/src/">
+  <Folder Name="/src/Admin/">
     <Project Path="src/Gma.Modules.Administration.Admin.Contracts/Gma.Modules.Administration.Admin.Contracts.csproj" />
     <Project Path="src/Gma.Modules.Administration.AdminApi/Gma.Modules.Administration.AdminApi.csproj" />
     <Project Path="src/Gma.Modules.Administration.AdminCli/Gma.Modules.Administration.AdminCli.csproj" />
+  </Folder>
+  <Folder Name="/src/Application/">
     <Project Path="src/Gma.Modules.Administration.Application/Gma.Modules.Administration.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Contracts/">
     <Project Path="src/Gma.Modules.Administration.Contracts/Gma.Modules.Administration.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Persistence/">
     <Project Path="src/Gma.Modules.Administration.Persistence.PostgreSqlMigrations/Gma.Modules.Administration.Persistence.PostgreSqlMigrations.csproj" />
     <Project Path="src/Gma.Modules.Administration.Persistence.SqlServerMigrations/Gma.Modules.Administration.Persistence.SqlServerMigrations.csproj" />
     <Project Path="src/Gma.Modules.Administration.Persistence/Gma.Modules.Administration.Persistence.csproj" />
