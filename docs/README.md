@@ -2,7 +2,7 @@
 
 Current development task: [Administration domain completion](administration-domain-completion-task.md).
 
-Completed foundation: [Administration production hardening](administration-production-hardening-task.md).
+Completed foundation: [Administration production hardening](administration-production-hardening-task.md), [Administration domain completion](administration-domain-completion-task.md), and [global resource-scope read-path hardening](administration-global-resource-scope-read-path-task.md).
 
 The Administration module is optional. It owns persisted admin audit, bounded audit discovery, and explicit retention operations without also owning persisted RBAC.
 
@@ -88,7 +88,7 @@ Tables:
 
 - `audit_entries`
 
-Traversal indexes cover global, tenant, tenant plus resource scope, actor,
+Traversal indexes cover global, tenant, global or tenant plus resource scope, actor,
 operation, and permission reads with `CreatedAtUtc` plus `Id` as the
 deterministic cursor key. Exact resource-scope lookup uses a fixed SHA-256
 index key plus equality on the canonical scope, keeping both relational

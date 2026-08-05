@@ -78,6 +78,8 @@ namespace Gma.Modules.Administration.Persistence.PostgreSqlMigrations.Migrations
 
                     b.HasIndex("Permission", "CreatedAtUtc", "Id");
 
+                    b.HasIndex("ResourceScopeHash", "CreatedAtUtc", "Id");
+
                     b.HasIndex("TenantId", "CreatedAtUtc", "Id");
 
                     b.HasIndex("TenantId", "ResourceScopeHash", "CreatedAtUtc", "Id");

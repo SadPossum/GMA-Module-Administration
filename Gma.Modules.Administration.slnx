@@ -27,6 +27,7 @@
   <Folder Name="/docs/">
     <File Path="docs/README.md" />
     <File Path="docs/administration-domain-completion-task.md" />
+    <File Path="docs/administration-global-resource-scope-read-path-task.md" />
     <File Path="docs/administration-production-hardening-task.md" />
     <File Path="docs/v0.1-access-control-migration.md" />
   </Folder>

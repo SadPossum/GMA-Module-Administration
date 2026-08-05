@@ -97,6 +97,24 @@ public abstract class AdministrationRelationalIntegrationTests
 
         AdministrationAuditEntryDetails entry = Assert.Single(entries);
         Assert.Equal(Id(1), entry.Id);
+
+        Result<AdministrationAuditFilter> resourceOnlyFilter = AdministrationAuditFilter.Create(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "property:property-a");
+        IReadOnlyList<AdministrationAuditEntryDetails> resourceEntries = await repository.ListAsync(
+            resourceOnlyFilter.Value,
+            cursor: null,
+            take: 10,
+            CancellationToken.None);
+
+        Assert.Equal([Id(1), Id(3)], resourceEntries.Select(item => item.Id));
     }
 
     [DockerFact]

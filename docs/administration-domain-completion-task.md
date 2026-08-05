@@ -2,6 +2,7 @@
 
 Status: complete
 Date: 2026-07-20
+Updated: 2026-08-05
 
 ## Goal
 
@@ -140,3 +141,4 @@ Products own:
 - BunkFy backend `dcfffb92628aee0d5de882c9d94fd6f55c4bd6b8`: Windows and Ubuntu validation passed in run `29765676240`, and required Docker validation passed in run `29765677045` with 27 tests and no skips.
 - BunkFy root `129540830e00f246049783a55545b6bac4542b15`: clean recursive workspace validation, including backend and committed frontend gates, passed in run `29766437697`.
 - Public product hosts still do not compose or expose the Administration audit front door; Administration remains available only through the dedicated admin API and CLI composition roots.
+- The 2026-08-05 resource-scope revalidation added the missing global hash/cursor index for the independently optional filter. The zero-warning build, 32 fast tests, both migration-drift checks, and all 10 exact PostgreSQL/SQL Server scenarios pass; ownership and public contracts are unchanged.

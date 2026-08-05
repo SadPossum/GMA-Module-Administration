@@ -25,6 +25,7 @@ internal sealed class AdminAuditEntryConfiguration : IEntityTypeConfiguration<Ad
         builder.HasIndex(entry => new { entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.ActorId, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.TenantId, entry.CreatedAtUtc, entry.Id });
+        builder.HasIndex(entry => new { entry.ResourceScopeHash, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.TenantId, entry.ResourceScopeHash, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.Operation, entry.CreatedAtUtc, entry.Id });
         builder.HasIndex(entry => new { entry.Permission, entry.CreatedAtUtc, entry.Id });
